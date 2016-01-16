@@ -7,6 +7,7 @@
 from bmp180 import BMP180
 from pyb import UART, LED, Pin, millis
 from time import sleep
+from micropyGPS import MicropyGPS
 
 
 #########################
@@ -19,6 +20,9 @@ bmp180 = BMP180('X')
 bmp180.oversample_sett = 3 #0=low accuracy, 3=high accuracy
 bmp180.baseline = 101325 #pressure at main sea level
 
+#create GPS object
+my_gps = MicropyGPS()
+
 #set up transceiver to send data to ground station
 x3_pin = Pin('X3', Pin.OUT_PP)
 x3_pin.high()
@@ -26,12 +30,21 @@ x3_pin.high()
 #create transceiver object on UART4
 hc12 = UART(4, 9600)
 
+#create gps object on UART3
+uart = UART(3, 9600)
+
 #feedback-pyboard on and working
 green = LED(2)
 green.on()
-blue = LED(4)
-orange = LED(3)
 
+#feedback-received start command
+blue = LED(4)
+
+#feedback-waiting for user to press button
+orange = LED(3)
+orange.off()
+
+#boolean variable to manage main loop
 finished = False
 
 
@@ -41,6 +54,11 @@ finished = False
 
 
 while finished == False:
+	#if there is data to be read then read it
+	if hc12.any():
+		hc12 = hc12.read()
+		hc12 = hc12.decode('utf-8')
+		hc12 = int(hc12)
 
 	#if start command is received
 	if hc12.any():
@@ -72,9 +90,6 @@ while finished == False:
 			sleep(1) #sleep for a second to buffer
 
 		finished = True
-
-	else:
-		orange.on()
 
 
 #########################
