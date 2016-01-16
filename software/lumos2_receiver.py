@@ -1,3 +1,4 @@
+# main.py -- put your code here!
 #########################
 #        Imports        #
 #########################
@@ -24,31 +25,36 @@ hc12 = UART(4, 9600)
 green = LED(2)
 green.on()
 
+#feedback-waiting for user to press button
+orange = LED(3)
+orange.on()
+
+
 
 #########################
 #       Main Loop       #
 #########################
 
-first_loop = False 
+first_loop = False
  
 while True: #While loop that loops forever
-	if first_loop == False: #
+	if first_loop == False:
 		pyb.Switch().callback(lambda: hc12.write('1'))
 		first_loop = True
+		orange.off()
 	if hc12.any():
 		data = hc12.readline()
 		data = data.decode('utf-8')
 		dataArray = data.split(',')   #Split it into an array called dataArray
-		tag = float(dataArray[0])            
-		temp = float(dataArray[1])            
-		pres = float(dataArray[2])
-		alt = float(dataArray[3])
-		location = float(dataArray[4])
+		if len(dataArray) == 5:
+			tag = float(dataArray[0])
+			temp = float(dataArray[1])
+			pres = float(dataArray[2])
+			alt = float(dataArray[3])
+			location = float(dataArray[4])
 
 		#data to analyse later
-		log = open('/sd/log.csv', 'a')
-		log.write('{},{},{},{},{}\n'.format(tag,temp,pres,alt,location))
-		log.close()
+		print(dataArray)
 
 
 #########################
