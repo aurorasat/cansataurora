@@ -46,12 +46,6 @@ while True: #While loop that loops forever
 		data = hc12.readline()
 		data = data.decode('utf-8')
 		dataArray = data.split(',')   #Split it into an array called dataArray
-		if len(dataArray) == 5:
-			tag = float(dataArray[0])
-			temp = float(dataArray[1])
-			pres = float(dataArray[2])
-			alt = float(dataArray[3])
-			location = float(dataArray[4])
 
 		#data to analyse later
 		print(dataArray)
