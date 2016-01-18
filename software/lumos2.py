@@ -54,12 +54,6 @@ finished = False
 
 
 while finished == False:
-	#if there is data to be read then read it
-	if hc12.any():
-		hc12 = hc12.read()
-		hc12 = hc12.decode('utf-8')
-		hc12 = int(hc12)
-
 	#if start command is received
 	if hc12.any():
 		orange.off()
@@ -75,15 +69,25 @@ while finished == False:
 			
 			temp = bmp180.temperature
 			pres = bmp180.pressure
-			alt = bmp180.altitude
-			location = 0
+			
+
+			#if there is gps data to be read
+			if uart.any():
+				my_sentence = uart.readline()
+
+			for x in my_sentence:
+				my_gps.update(x)
+
+			latitude = my_gps.latitude_string()
+			longitude = my_gps.longitude_string()
+			alt = my_gps.altitude
 
 			#open backup.csv to write data to, write to it, then close it
 			backup = open('/sd/backup.csv', 'a')
-			backup.write('{},{},{},{},{}\n'.format(tag,temp,pres,alt,location))
+			backup.write('{},{},{},{},{},{}\n'.format(tag,temp,pres,alt,latitude,longitude))
 			backup.close()
 
-			data = str(tag) + ',' + str(temp) + ',' + str(pres) + ',' + str(alt) + ',' + str(location) #concatenate data with commas
+			data = str(tag) + ',' + str(temp) + ',' + str(pres) + ',' + str(alt) + ',' + str(latitude) + ',' + str(longitude) #concatenate data with commas
 
 			hc12.write(data) #write data over UART4 to transmit to ground station
 
