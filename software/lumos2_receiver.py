@@ -4,9 +4,9 @@
 #########################
 
 
-from pyb import UART, LED, Pin
-import pyb
+from pyb import UART, LED, Pin, Switch
 from time import sleep
+import sys
 
 
 #########################
@@ -30,36 +30,54 @@ orange = LED(3)
 orange.on()
 
 
+#########################
+#      Sub Programs     #
+#########################
+
+
+def start():
+	hc12.write('1')
+	orange.off()
+
+#create switch object
+big_red_button = Switch()
+big_red_button.callback(start)
+
+finished = False
+ 
 
 #########################
 #       Main Loop       #
 #########################
-
-first_loop = False
  
-while True: #While loop that loops forever
-	if first_loop == False:
-		pyb.Switch().callback(lambda: hc12.write('1'))
-		first_loop = True
-		orange.off()
-	if hc12.any():
+while finished == False: #While loop that loops forever
+
+	if hc12.any(): 
 		data = hc12.readline()
 		data = data.decode('utf-8')
+
 		dataArray = data.split(',')   #Split it into an array called dataArray
 
+		if dataArray[0] == 'end':
+			green.off()
+			sleep(0.5)
+			green.on()
+			sleep(0.5)
+			green.off()
+			finished == True
+		elif len(dataArray) == 6:
+			tagx = dataArray[0]
+			temp = dataArray[1]
+			pres = dataArray[2]
+			alti = dataArray[3]
+			lati = dataArray[4]
+			loni = dataArray[5]
+
 		#data to analyse later
-		print(dataArray)
-
-
-#########################
-#      End Program      #
-#########################
-
-
-for i in range(0,4):
-	green.toggle()
-	sleep(0.2)
-	green.toggle()
-	sleep(0.2)
-	
-green.off()
+			#print('TAGX:{}'.format(tagx))
+			data = str(temp) + ',' + str(pres) + ',' + str(tagx)
+			print(data)
+			#print('PRES:{}'.format(pres))
+			#print('ALTI:{}'.format(alti))
+			#print('LATI:{}'.format(lati))
+			#print('LONI:{}'.format(loni))
